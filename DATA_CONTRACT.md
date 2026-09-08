@@ -84,3 +84,69 @@ Intelligence, and Banduni/Areca will render this on the Frontend map.
   "model_version": "risk-xgb-v1"
 }
 
+## 4. Map Intelligence Snapshot (Backend -> Frontend)
+*Ref: PRAVAHA Map Intelligence Contract v0.1*
+Returns a coherent, timestamped snapshot of the entire city's risk state.
+
+**Endpoint:** `GET /api/v1/map/intelligence`
+```json
+{
+  "snapshot_id": "snap_20260904_224500",
+  "generated_at": "2026-09-04T22:45:00Z",
+  "model_version": "pravaha-city-v0.1",
+  "city": {
+    "city_id": "DEHRADUN",
+    "name": "Dehradun"
+  },
+  "operational_status": "ELEVATED",
+  "summary": {
+    "catchment_count": 48,
+    "high_risk_catchments": 4,
+    "roads_to_avoid": 19,
+    "confirmed_road_closures": 2,
+    "low_confidence_catchments": 3
+  }
+}
+
+
+## 5. Map Object Detail (Backend -> Frontend)
+*Ref: PRAVAHA Map Intelligence Contract v0.1*
+Clicking a specific entity on the frontend map triggers a fetch for detailed intelligence. All geometries MUST use GeoJSON `[longitude, latitude]` ordering.
+
+**Endpoint (Catchment Example):** `GET /api/v1/map/catchments/{catchment_id}`
+```json
+{
+  "catchment_id": "C_018",
+  "snapshot_id": "snap_20260904_224500",
+  "risk": {
+    "score": 0.81,
+    "level": "HIGH"
+  },
+  "confidence": {
+    "score": 0.88,
+    "level": "HIGH",
+    "disposition": "NORMAL"
+  },
+  "impact": {
+    "affected_population": 4820,
+    "roads_at_risk": 7,
+    "critical_drains": 3
+  },
+  "reasons": [
+    "intense_recent_rainfall",
+    "wet_soil_condition",
+    "high_runoff"
+  ],
+  "last_updated": "2026-09-04T22:44:45Z"
+}
+
+## 6. Safe route Request (frontend -> backend)
+Ref: PRAVAHA Map Intelligence Contract v0.1
+PRAVAHA must NEVER invent a safe route. If all routes cross severe flood-risk segments or authority-closed zones, the backend must return "status": "NO_SAFE_ROUTE".
+Endpoint: POST /api/v1/routes/safe
+
+{
+  "origin": { "latitude": 30.3165, "longitude": 78.0322 },
+  "destination": { "latitude": 30.3250, "longitude": 78.0410 },
+  "routing_mode": "SAFEST"
+}
