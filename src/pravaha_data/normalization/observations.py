@@ -4,9 +4,11 @@ from typing import Dict, Any
 
 from ..models.observation import CanonicalObservation, Location, Measurement
 from ..models.provenance import DataStatus
+from ..models.raw_sensor import RawSensorPayload
 
 def normalize_open_meteo(raw_data: Dict[str, Any]) -> CanonicalObservation:
     measurements = {}
+    measurement_status = DataStatus(raw_data.get("measurement_status", DataStatus.OBSERVED))
     
     if raw_data["raw_measurements"] is None:
         measurements["rainfall_intensity_mm_per_hr"] = Measurement(value=None, status=DataStatus.MISSING)
@@ -15,7 +17,7 @@ def normalize_open_meteo(raw_data: Dict[str, Any]) -> CanonicalObservation:
         # Extract intensity
         precip = raw_data["raw_measurements"].get("precipitation")
         if precip is not None:
-            measurements["rainfall_intensity_mm_per_hr"] = Measurement(value=float(precip), status=DataStatus.OBSERVED)
+            measurements["rainfall_intensity_mm_per_hr"] = Measurement(value=float(precip), status=measurement_status)
         else:
             measurements["rainfall_intensity_mm_per_hr"] = Measurement(value=None, status=DataStatus.MISSING)
             
@@ -23,7 +25,8 @@ def normalize_open_meteo(raw_data: Dict[str, Any]) -> CanonicalObservation:
         soil = raw_data["raw_measurements"].get("soil_moisture_0_to_7cm")
         if soil is not None:
             # We explicitly label this as derived since OpenMeteo returns volumetric water content, not saturation
-            measurements["soil_moisture_volumetric"] = Measurement(value=float(soil), status=DataStatus.DERIVED)
+            soil_status = DataStatus.SIMULATED if measurement_status == DataStatus.SIMULATED else DataStatus.DERIVED
+            measurements["soil_moisture_volumetric"] = Measurement(value=float(soil), status=soil_status)
         else:
             measurements["soil_moisture_volumetric"] = Measurement(value=None, status=DataStatus.MISSING)
 
@@ -65,4 +68,50 @@ def normalize_simulated_iot(raw_data: Dict[str, Any]) -> CanonicalObservation:
             longitude=raw_data["location"]["lon"]
         ),
         measurements=measurements
+    )
+
+
+def normalize_raw_sensor(
+    payload: RawSensorPayload | Dict[str, Any],
+    *,
+    measurement_status: DataStatus = DataStatus.OBSERVED,
+) -> CanonicalObservation:
+    """
+    Normalize the public raw sensor payload into Data/IoT's internal
+    CanonicalObservation shape.
+
+    Public contract coordinates remain location.lat/location.lon. The
+    canonical observation uses location.latitude/location.longitude.
+    """
+
+    if not isinstance(payload, RawSensorPayload):
+        payload = RawSensorPayload.model_validate(payload)
+
+    metrics = payload.sensor_metrics
+
+    measurements = {
+        "rainfall_intensity_mm_per_hr": Measurement(
+            value=float(metrics.rainfall_mm_per_hr),
+            status=measurement_status,
+        ),
+        "soil_moisture_percentage": Measurement(
+            value=float(metrics.soil_moisture_percentage),
+            status=measurement_status,
+        ),
+        "slope_tilt_degrees": Measurement(
+            value=float(metrics.slope_tilt_degrees),
+            status=measurement_status,
+        ),
+    }
+
+    return CanonicalObservation(
+        observation_id=str(uuid.uuid4()),
+        source_id=payload.device_id,
+        source_type="IOT_SENSOR",
+        observed_at=payload.timestamp,
+        location=Location(
+            latitude=payload.location.lat,
+            longitude=payload.location.lon,
+        ),
+        measurements=measurements,
     )

@@ -1,5 +1,4 @@
 import time
-import json
 from pravaha_data.adapters.open_meteo import OpenMeteoAdapter
 from pravaha_data.adapters.simulated_iot import SimulatedIoTAdapter
 from pravaha_data.normalization.observations import normalize_open_meteo, normalize_simulated_iot
