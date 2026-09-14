@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from typing import List, Optional, Dict, Tuple
+from typing import Callable, List, Optional, Tuple
 from ..models.observation import CanonicalObservation
 from ..models.provenance import DataStatus, DataQuality
 from ..models.fused_state import RainWindowFeatures
@@ -10,20 +10,30 @@ DEFAULT_RETENTION_HOURS = 28
 DEFAULT_MAX_HOLD_MINUTES = 60.0
 
 class TemporalHistory:
-    def __init__(self, retention_hours: float = DEFAULT_RETENTION_HOURS, max_hold_minutes: float = DEFAULT_MAX_HOLD_MINUTES):
+    def __init__(
+        self,
+        retention_hours: float = DEFAULT_RETENTION_HOURS,
+        max_hold_minutes: float = DEFAULT_MAX_HOLD_MINUTES,
+        clock: Optional[Callable[[], datetime]] = None,
+    ):
         self.observations: List[CanonicalObservation] = []
         self.retention_hours = retention_hours
         self.max_hold_minutes = max_hold_minutes
+        self._clock = clock or (lambda: datetime.now(timezone.utc))
 
-    def add_observation(self, obs: CanonicalObservation):
+    def add_observation(
+        self,
+        obs: CanonicalObservation,
+        as_of: Optional[datetime] = None,
+    ):
         """Add a canonical observation and prune records older than retention window."""
         self.observations.append(obs)
-        self.prune()
+        self.prune(as_of=as_of)
 
     def prune(self, as_of: Optional[datetime] = None):
         """Prune observations older than retention period."""
         if as_of is None:
-            as_of = datetime.now(timezone.utc)
+            as_of = self._clock()
         cutoff = as_of - timedelta(hours=self.retention_hours)
         self.observations = [o for o in self.observations if o.observed_at >= cutoff]
 

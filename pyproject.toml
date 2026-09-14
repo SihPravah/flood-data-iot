@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pravaha-data"
+version = "0.1.0"
+description = "Data ingestion, normalization, temporal history, and fusion for PRAVAHA"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "requests",
+    "pydantic",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+]
+dev = [
+    "pytest",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
