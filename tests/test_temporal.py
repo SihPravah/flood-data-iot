@@ -32,9 +32,9 @@ def test_irregularly_spaced_rainfall_integration():
     t20 = now - timedelta(minutes=40)
     t40 = now - timedelta(minutes=20)
     
-    history.add_observation(make_rain_obs(t0, 12.0))
-    history.add_observation(make_rain_obs(t20, 6.0))
-    history.add_observation(make_rain_obs(t40, 0.0))
+    history.add_observation(make_rain_obs(t0, 12.0), as_of=now)
+    history.add_observation(make_rain_obs(t20, 6.0), as_of=now)
+    history.add_observation(make_rain_obs(t40, 0.0), as_of=now)
     
     r_1h = history.get_rain_1h(as_of=now)
     assert r_1h.status == DataStatus.DERIVED
@@ -49,7 +49,7 @@ def test_complete_1h_window():
     
     for mins in range(60, -1, -10):
         t = now - timedelta(minutes=mins)
-        history.add_observation(make_rain_obs(t, 10.0))
+        history.add_observation(make_rain_obs(t, 10.0), as_of=now)
         
     r_1h = history.get_rain_1h(as_of=now)
     assert r_1h.status == DataStatus.DERIVED
@@ -66,7 +66,7 @@ def test_partial_incomplete_1h_window():
     
     # Only one reading at t - 55 mins
     t = now - timedelta(minutes=55)
-    history.add_observation(make_rain_obs(t, 20.0))
+    history.add_observation(make_rain_obs(t, 20.0), as_of=now)
     
     r_1h = history.get_rain_1h(as_of=now)
     # 15 minutes of hold out of 60 minutes = 0.25 coverage
@@ -83,9 +83,9 @@ def test_24h_retention_and_pruning():
     t_boundary = now - timedelta(hours=27)
     t_expired = now - timedelta(hours=35)
     
-    history.add_observation(make_rain_obs(t_fresh, 5.0))
-    history.add_observation(make_rain_obs(t_boundary, 5.0))
-    history.add_observation(make_rain_obs(t_expired, 5.0))
+    history.add_observation(make_rain_obs(t_fresh, 5.0), as_of=now)
+    history.add_observation(make_rain_obs(t_boundary, 5.0), as_of=now)
+    history.add_observation(make_rain_obs(t_expired, 5.0), as_of=now)
     
     history.prune(as_of=now)
     
@@ -104,7 +104,7 @@ def test_stale_rainfall_age_calculation():
     now = datetime(2026, 9, 11, 12, 0, 0, tzinfo=timezone.utc)
     
     t_stale = now - timedelta(minutes=45)
-    history.add_observation(make_rain_obs(t_stale, 15.0))
+    history.add_observation(make_rain_obs(t_stale, 15.0), as_of=now)
     
     r_1h = history.get_rain_1h(as_of=now)
     assert r_1h.latest_observation_age_minutes == pytest.approx(45.0, abs=1.0)
@@ -119,10 +119,46 @@ def test_provider_agnostic_rainfall():
     obs1 = make_rain_obs(now - timedelta(minutes=20), 8.0, source="IMD_RADAR")
     obs2 = make_rain_obs(now - timedelta(minutes=10), 12.0, source="LOCAL_ESP32_PULSE")
     
-    history.add_observation(obs1)
-    history.add_observation(obs2)
+    history.add_observation(obs1, as_of=now)
+    history.add_observation(obs2, as_of=now)
     
     r_30m = history.get_rain_30m(as_of=now)
     assert r_30m.status == DataStatus.DERIVED
     assert r_30m.observation_count == 2
     assert r_30m.value_mm is not None
+
+def test_add_observation_prunes_against_explicit_reference_time():
+    """Insertion-time pruning can be evaluated against deterministic reference time."""
+    history = TemporalHistory(retention_hours=28)
+    reference_time = datetime(2035, 1, 2, 12, 0, 0, tzinfo=timezone.utc)
+
+    retained = reference_time - timedelta(hours=27)
+    expired = reference_time - timedelta(hours=29)
+
+    history.add_observation(make_rain_obs(retained, 5.0), as_of=reference_time)
+    history.add_observation(make_rain_obs(expired, 5.0), as_of=reference_time)
+
+    obs_times = [o.observed_at for o in history.observations]
+    assert retained in obs_times
+    assert expired not in obs_times
+
+def test_fixed_historical_timestamp_uses_explicit_reference_time():
+    """Fixed-date tests stay independent of the actual wall-clock date."""
+    history = TemporalHistory()
+    reference_time = datetime(2001, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
+    observed_at = reference_time - timedelta(minutes=10)
+
+    history.add_observation(make_rain_obs(observed_at, 12.0), as_of=reference_time)
+
+    r_30m = history.get_rain_30m(as_of=reference_time)
+    assert r_30m.status == DataStatus.DERIVED
+    assert r_30m.latest_observation_age_minutes == pytest.approx(10.0)
+
+def test_default_add_observation_prunes_against_current_utc_time():
+    """Production default still prunes against the current UTC wall-clock time."""
+    history = TemporalHistory(retention_hours=1)
+    stale_time = datetime.now(timezone.utc) - timedelta(hours=2)
+
+    history.add_observation(make_rain_obs(stale_time, 5.0))
+
+    assert history.observations == []

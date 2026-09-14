@@ -120,7 +120,7 @@ def test_rainfall_window_provenance_is_derived():
     obs = make_obs(now - timedelta(minutes=5), {
         "rainfall_intensity_mm_per_hr": Measurement(value=10.0, status=DataStatus.OBSERVED)
     })
-    history.add_observation(obs)
+    history.add_observation(obs, as_of=now)
     
     res = fuse_catchment_state("CAT_01", [obs], history, state_time=now)
     
