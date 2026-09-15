@@ -132,6 +132,15 @@ Freshness and quality are separate from provenance. Static GIS verification can
 use a separate static-data verification field and must not be represented as
 `OBSERVED` measurement provenance.
 
+Static GIS source status is separate from measurement provenance and uses:
+
+- `AUTHORITATIVE`
+- `OPEN_REAL_DATA`
+- `DERIVED_FROM_REAL_DATA`
+- `ESTIMATED`
+- `DEMO`
+- `NOT_AVAILABLE`
+
 ## Source Health
 
 Source health objects use:

@@ -10,10 +10,10 @@ RAW_PAYLOAD = {
     "device_id": DEMO_SENSOR_PRIMARY_ID,
     "timestamp": "2026-09-09T08:45:00Z",
     "location": {
-        "village": "Example Village",
-        "ward": "Ward 1",
-        "lat": 30.3165,
-        "lon": 78.0322,
+        "village": "Chandrabani",
+        "ward": "Chandrabani settlement point",
+        "lat": 30.285029,
+        "lon": 77.978689,
     },
     "sensor_metrics": {
         "rainfall_mm_per_hr": 12.4,

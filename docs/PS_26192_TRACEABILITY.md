@@ -8,14 +8,19 @@ Status values: `IMPLEMENTED`, `PARTIAL`, `DEMO`, `BLOCKED`, `NOT AVAILABLE`.
 
 ## Study Area
 
-- `study_area_id`: `UK-CHM-DEHRADUN-01`
-- Name: Chandrabani upper catchment demo sector, Dehradun, Uttarakhand
+- `study_area_id`: `DEHRADUN-CHANDRABANI-PS26192`
+- Prediction unit: `UK-CHM-DEHRADUN-01`
+- Name: Chandrabani focused micro-catchment study area, Dehradun, Uttarakhand
 - CRS: WGS84 longitude/latitude for API GeoJSON
-- Approximate demo bounding box: `[78.02, 30.31, 78.06, 30.35]`
-- Static GIS status: demo/estimated geometry only in the current repositories
-- Operational GIS limitation: verified DEM, derived slope rasters, authoritative
-  ward boundaries, road inventories, shelters, and historical landslide
-  inventories are not yet committed as source datasets
+- Metric CRS for distance/slope processing: `EPSG:32643`
+- Approximate study bounding box: west `77.968`, south `30.270`,
+  east `78.000`, north `30.300`
+- Static GIS status: OpenStreetMap roads/stream/settlement/POIs and
+  OpenTopoData SRTM elevation are committed as a small focused static extract.
+- Operational GIS limitation: catchment boundary, drain capacity, shelter
+  designation, official closures, HAND/TWI/flow accumulation, ward/village
+  polygons, and historical landslide inventory remain estimated, demo, or not
+  available as labelled.
 
 ## Requirement Matrix
 
@@ -24,21 +29,21 @@ Status values: `IMPLEMENTED`, `PARTIAL`, `DEMO`, `BLOCKED`, `NOT AVAILABLE`.
 | Rainfall ingestion | Data/IoT | Raw sensor rainfall and Open-Meteo current rainfall normalize to canonical observations | `POST /api/v1/ingest/sensors`, `POST /api/v1/live/open-meteo`, `pravaha_data.adapters.open_meteo` | Open-Meteo adapter returned `OBSERVED` rainfall on 2026-09-15; demo sensor stream drives worsening state | IMPLEMENTED | Live provider value varies by weather and network |
 | Rainfall windows | Data/IoT | ZOH temporal fusion calculates 15m, 30m, 1h, 3h, 6h, and 24h accumulation windows with coverage and gap quality | `pravaha_data.temporal.history`, `pravaha_data.fusion.catchment_fusion` | `DEMO-001` fixed observation sequence returns deterministic FusedCatchmentState v2.1 | IMPLEMENTED | One live observation alone correctly yields low coverage or `UNUSABLE` windows |
 | Soil moisture | Data/IoT, ML | Sensor soil moisture is accepted; Open-Meteo soil variable is marked `DERIVED`; ML consumes soil saturation | `RawSensorPayload`, `normalize_open_meteo`, ML fused-state adapter | Sensor publisher can send `--soil 0.82`; demo state rises from 34% to 96% | PARTIAL | No physical soil sensor feed is configured in this workspace |
-| Slope stability | ML | Landslide susceptibility and slope/soil/rainfall drivers exist in ML intelligence | `pravaha_ml.landslide`, Backend road/catchment detail DTOs | DEMO-001 severe stage raises landslide susceptibility and road impact | DEMO | Verified DEM-derived slope data is not committed |
-| Historical landslide inventory | ML | ML model supports inventory influence and missing inventory confidence penalties | `pravaha_ml.landslide` tests | Demo labels inventory context as estimated/unavailable | PARTIAL | No real historical landslide inventory dataset is loaded |
+| Slope stability | ML | Landslide susceptibility and slope/soil/rainfall drivers exist in ML intelligence; SRTM-derived representative slope is now exposed as static GIS context | `pravaha_ml.landslide`, `pravaha_ml.geospatial.static_context`, Backend road/catchment/location DTOs | DEMO-001 severe stage raises landslide susceptibility and road impact over real/static terrain context | PARTIAL | Representative SRTM slope exists; detailed slope raster and field validation are not committed |
+| Historical landslide inventory | ML | ML model supports inventory influence and missing inventory confidence penalties | `pravaha_ml.landslide` tests | Demo labels inventory context as unavailable and keeps the displayed susceptibility zone demo-only | NOT AVAILABLE | No credible local historical landslide inventory dataset is loaded |
 | Real-time IoT ingestion | Backend, Data/IoT | Canonical POST accepts asynchronous event time, receive time, `location.lat/lon`, rainfall, soil, tilt, and provenance | `POST /api/v1/ingest/sensors`, `scripts/publish_sensor_event.py` | Golden backend test posts multiple events and observes snapshot changes | IMPLEMENTED | Current publisher is a software simulator, not a deployed hardware gateway |
 | Multi-source fusion | Data/IoT | Canonical observations preserve provenance; observed data outranks simulated; missing is not zero | `CatchmentStateService`, `fuse_catchment_state` | Data tests cover provenance, missing, source health, deterministic fusion | IMPLEMENTED | Operational source registry remains in-memory |
 | FusedCatchmentState v2.1 | Data/IoT | Authoritative ML-facing boundary includes rainfall intensity, windows, soil, data quality, freshness, gaps, counts, coverage, provenance | `GET /api/v1/catchments/{catchment_id}/state` | Data tests and Backend golden test consume the shape | IMPLEMENTED | Contract versioning is documentation-based today |
 | Hyper-local prediction | ML | Prediction unit is catchment/sub-catchment; downstream DTOs map to ward, road, drain, shelter context | `pravaha_ml.inference.predictor`, Backend map/detail endpoints | DEMO-001 shows `UK-CHM-DEHRADUN-01` changing risk | DEMO | Real calibrated model artifact and operational validation are not available |
 | Lead time | ML, Backend, Frontend | Timeline and threshold crossing windows are exposed with confidence and scenario assumptions | Backend catchment detail, map summary, frontend anticipation UI | WARNING shows `+30 min HIGH`; SEVERE shows `NOW SEVERE` | DEMO | Lead time is deterministic demo/development intelligence, not operational forecast validation |
-| Village/ward warning | Backend, Frontend | Ward/village identifiers and impacts are exposed in map layers, search, alerts, and detail views | `GET /api/v1/map/intelligence`, frontend drawer | `WARD-DEHRADUN-07` and `VILLAGE-CHANDRABANI` appear in demo | DEMO | Authoritative ward/village polygons are not committed |
+| Village/ward warning | Backend, Frontend | Chandrabani settlement context is exposed through OSM settlement points, map search, alerts, and detail views | `GET /api/v1/map/intelligence`, `GET /api/v1/map/inspect`, frontend drawer | `VILLAGE-CHANDRABANI` appears as an OSM settlement point; no fake ward polygon is shown | PARTIAL | Authoritative ward/village polygons are not committed |
 | Alert object | Backend, Frontend | Structured alerts include risk, confidence, reasons, provenance, affected entities, and review action | `GET /api/v1/map/alerts`, frontend alert center | DEMO-001 warning/drain alerts display separately from authority orders | IMPLEMENTED | Operational alert publishing/escalation workflow is not connected |
 | Landslide-flood cascade | ML, Backend, Frontend | Cascade steps show rainfall, saturation, runoff, drain overload, road flooding, and landslide context | Backend catchment detail, frontend cascade UI | SEVERE scenario shows cascade and landslide road exposure | DEMO | Real inventory and terrain layers remain missing |
-| Drainage impact | ML, Backend, Frontend | Drain details expose inflow, capacity, utilization, overflow, affected roads, provenance | `GET /api/v1/map/drains/{drain_id}` | D-22 exceeds capacity in WARNING/SEVERE | DEMO | Capacity and geometry are estimated demo data |
-| Road risk | ML, Backend, Frontend | Road status distinguishes `PASSABLE`, `CAUTION`, `AVOID`, and `CLOSED` | `GET /api/v1/map/roads/{road_id}` | `ROAD-SHELTER-CORRIDOR` becomes `AVOID`; bridge closure remains authority-marked | IMPLEMENTED | Demo road geometry is not an authoritative road inventory |
+| Drainage impact | ML, Backend, Frontend | Drain details expose inflow, capacity, utilization, overflow, affected roads, provenance; D-22 geometry is aligned to a real OSM stream corridor | `GET /api/v1/map/drains/{drain_id}` | D-22 exceeds estimated capacity in WARNING/SEVERE | PARTIAL | Municipal drain identity and capacity are estimated, not measured or authority verified |
+| Road risk | ML, Backend, Frontend | Road status distinguishes `PASSABLE`, `CAUTION`, `AVOID`, and `CLOSED`; current demo road geometries come from OSM | `GET /api/v1/map/roads/{road_id}` | Transport Nagar Road becomes model `AVOID`; mapped unnamed connector has a clearly labelled demo authority closure | IMPLEMENTED | OSM road geometry is real/open data; hazard status and demo closure are not real field observations |
 | Evacuation/routing support | ML, Backend, Frontend | Route API returns selected route, alternatives, no-safe-route state, safety note, and blocked segments | `POST /api/v1/routes/safe` | Route reroutes to higher-ground bypass; isolated destination returns `NO_SAFE_ROUTE` | DEMO | No live traffic, authority order, or field verification feed |
 | Source failure handling | Data/IoT, Backend, Frontend | Source health, freshness, missing values, and confidence are explicit; missing does not become zero or safe | `GET /api/v1/system/health`, source-health drawer | DEMO-001 SEVERE marks secondary sensor unavailable and keeps risk elevated | IMPLEMENTED | Source state is in-memory for local demo |
-| Frontend command center | Frontend | Map-first UI with layers, search, detail drawer, route planner, alerts, source health, timeline, and polling | `flood-frontend/src` | API mode polls Backend; mock mode remains isolated and tagged | IMPLEMENTED | Browser QA is local; no production deployment/auth setup |
+| Frontend command center | Frontend | Map-first UI with layers, search, detail drawer, route planner, alerts, source health, timeline, polling, and coordinate inspection | `flood-frontend/src` | API mode polls Backend; mock mode remains isolated and tagged; source status is visible in drawers/source health | IMPLEMENTED | Browser QA is local; no production deployment/auth setup |
 | Operational deployment | All repos | Dev/test packaging exists and suites run on Python 3.11 and pnpm | `pyproject.toml`, `package.json` | Data 33 passed, ML 502 passed, Backend 25 passed | PARTIAL | Durable persistence, production orchestration, and real model serving are not complete |
 
 ## Data Classification
@@ -60,19 +65,30 @@ Status values: `IMPLEMENTED`, `PARTIAL`, `DEMO`, `BLOCKED`, `NOT AVAILABLE`.
 
 ### Static sources
 
-- Demo catchment, drain, road, stream, ward/village, shelter, landslide, and route
-  geometries embedded as deterministic local fixtures.
+- OpenStreetMap road geometry for Transport Nagar Road, Post Office Road, and
+  an unnamed connector mapped to stable PRAVAHA road IDs.
+- OpenStreetMap stream geometry used as natural stream context.
+- OpenStreetMap settlement and critical-asset POIs, including Chandrabani and
+  Rajaram Mohan Roy Academy.
+- OpenTopoData SRTM 30m elevation samples for the focused Chandrabani bbox.
 
 ### Estimated values
 
-- Demo terrain, mean slope, drain capacity, shelter capacity, road exposure,
-  historical waterlogging, and landslide inventory context.
+- Focused micro-catchment envelope around Chandrabani.
+- Representative SRTM-derived slope summary, until a full conditioned terrain
+  product is prepared.
+- D-22 municipal drain identity/capacity profile.
+- Road exposure, historical waterlogging, population/exposure and local
+  landslide susceptibility features where no authoritative local dataset exists.
 
 ### Missing or unavailable sources
 
 - Physical IoT network.
-- Verified DEM/elevation/slope raster source files.
+- Full committed DEM raster, flow direction, flow accumulation, HAND and TWI.
 - Authoritative road closures and evacuation orders.
+- Official shelter list and shelter capacities.
+- Authoritative ward/village polygons for the focused box.
+- Measured municipal storm-drain geometry/capacity.
 - Real historical landslide inventory dataset.
 - Calibrated operational ML artifact with real-world validation metrics.
 
@@ -90,7 +106,8 @@ canonical observation
 -> Frontend map
 ```
 
-The live Open-Meteo source is working through Data/IoT into FusedCatchmentState,
-but the complete live Backend-to-real-ML operational path remains `PARTIAL`
-until a deployable ML service/artifact and verified static GIS datasets are
-connected.
+The live Open-Meteo source is working through Data/IoT into FusedCatchmentState.
+The current full demo path now combines live/simulated dynamic observations with
+real static OSM/SRTM context, while ML remains a labelled development fallback
+and unverified/official GIS layers remain explicitly estimated, demo, or not
+available.

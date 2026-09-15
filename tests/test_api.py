@@ -9,9 +9,9 @@ RAW_PAYLOAD = {
     "received_at": "2026-09-09T08:30:04Z",
     "location": {
         "village": "Chandrabani",
-        "ward": "Ward 7",
-        "lat": 30.329,
-        "lon": 78.039,
+        "ward": "Chandrabani settlement point",
+        "lat": 30.285029,
+        "lon": 77.978689,
     },
     "sensor_metrics": {
         "rainfall_mm_per_hr": 48.0,
@@ -36,8 +36,8 @@ def test_sensor_post_enters_fusion_path():
     assert body["device_id"] == "UK-SNS-00127"
     assert body["catchment_id"] == "UK-CHM-DEHRADUN-01"
     assert body["canonical_location"] == {
-        "latitude": 30.329,
-        "longitude": 78.039,
+        "latitude": 30.285029,
+        "longitude": 77.978689,
     }
     assert body["fused_state"]["catchment_id"] == "UK-CHM-DEHRADUN-01"
     assert body["fused_state"]["rainfall"]["intensity"]["value"] == 48.0

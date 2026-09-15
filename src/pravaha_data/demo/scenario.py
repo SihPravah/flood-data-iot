@@ -25,10 +25,10 @@ class DemoStage(str, Enum):
 DEMO_DEVICE_ID = DEMO_SENSOR_PRIMARY_ID
 DEMO_BASE_TIME = datetime(2026, 9, 9, 8, 0, 0, tzinfo=timezone.utc)
 DEMO_LOCATION = {
-    "village": "Example Village",
-    "ward": "Ward 1",
-    "lat": 30.3165,
-    "lon": 78.0322,
+    "village": "Chandrabani",
+    "ward": "Chandrabani settlement point",
+    "lat": 30.285029,
+    "lon": 77.978689,
 }
 
 _STAGE_PROFILES = {

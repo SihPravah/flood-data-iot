@@ -1,4 +1,4 @@
-# PRAVAHA Canonical Data Contracts (v2.4 - PS 26192 Integration)
+# PRAVAHA Canonical Data Contracts (v2.5 - PS 26192 Integration)
 
 > [!NOTE]
 > **ARCHITECTURE / CONTRACT CHANGE ALERT (v2.1)**
@@ -24,6 +24,12 @@
 > - **Change**: Defines Data/IoT live-state endpoints for sensor ingestion, Open-Meteo ingestion, catchment state retrieval, and source health.
 > - **Change**: Aligns the route API with the implemented Backend and Frontend DTO: `ROUTE_FOUND` returns `selected_route` plus `alternatives`; `NO_SAFE_ROUTE` returns a list of blocking route segments.
 > - **Safety**: API mode should request the latest Backend monitoring snapshot by default. Scenario-stage query parameters are for deterministic demo review and must not be the only path by which the Frontend can observe real sensor updates.
+
+> [!NOTE]
+> **ARCHITECTURE / CONTRACT CHANGE ALERT (v2.5 proposal)**
+> - **Change**: Freezes the focused SIH study area as `DEHRADUN-CHANDRABANI-PS26192`, adds explicit static GIS source-status metadata, adds optional `study_area` metadata to map snapshots, and proposes `GET /api/v1/map/inspect` for coordinate-level GIS inspection.
+> - **Rationale**: PRAVAHA must distinguish live observations, derived terrain, open real map geometry, estimated drain/catchment assumptions, demo fixtures, and unavailable layers while remaining hyper-local and judge-auditable.
+> - **Safety**: Real static geometry does not make simulated hazards real. `CLOSED` remains authority-confirmed only; DEMO-001 closure fixtures must be labelled as demo authority closures.
 
 This document is the absolute source of truth across all 4 repositories (`flood-data-iot`, `flood-ml`, `flood-backend`, `flood-frontend`).
 
@@ -211,7 +217,40 @@ Risk-bearing objects must keep these fields separate:
 - `provenance`
 - `last_updated`
 
-Static map/GIS assets may expose `verification_status` separately from measurement provenance. Do not represent static `VERIFIED` assets as `OBSERVED` measurements.
+Static map/GIS assets may expose `source_status` separately from measurement provenance. Do not represent static open/authority evidence as `OBSERVED` measurements.
+
+Static GIS source status uses these contract values:
+
+- `AUTHORITATIVE`: government/official source for the exact layer and study area.
+- `OPEN_REAL_DATA`: real-world open dataset such as OpenStreetMap or public DEM.
+- `DERIVED_FROM_REAL_DATA`: deterministic derivative from a real static dataset, such as DEM-derived slope.
+- `ESTIMATED`: PRAVAHA assumption or coarse derivation that is not field/authority verified.
+- `DEMO`: deterministic demo fixture, including demo shelter designation or demo authority closure.
+- `NOT_AVAILABLE`: required layer or attribute is not currently available.
+
+The focused study area for PS 26192 local demonstration is:
+
+```json
+{
+  "study_area_id": "DEHRADUN-CHANDRABANI-PS26192",
+  "name": "Chandrabani focused micro-catchment study area",
+  "state": "Uttarakhand",
+  "district": "Dehradun",
+  "public_crs": "EPSG:4326",
+  "metric_crs": "EPSG:32643",
+  "bounding_box": {
+    "west": 77.968,
+    "south": 30.270,
+    "east": 78.000,
+    "north": 30.300
+  },
+  "center": {
+    "longitude": 77.978689,
+    "latitude": 30.285029
+  },
+  "approx_area_km2": 10.25
+}
+```
 
 ### 4.1 Map Intelligence Snapshot
 
@@ -229,9 +268,28 @@ deterministic demo review.
   "scenario_id": "DEMO-001",
   "mode": "DEMO",
   "data_label": "SIMULATED",
+  "study_area": {
+    "study_area_id": "DEHRADUN-CHANDRABANI-PS26192",
+    "name": "Chandrabani focused micro-catchment study area",
+    "district": "Dehradun",
+    "state": "Uttarakhand",
+    "public_crs": "EPSG:4326",
+    "metric_crs": "EPSG:32643",
+    "bounding_box": {
+      "west": 77.968,
+      "south": 30.270,
+      "east": 78.000,
+      "north": 30.300
+    },
+    "center": {
+      "longitude": 77.978689,
+      "latitude": 30.285029
+    },
+    "approx_area_km2": 10.25
+  },
   "city": {
     "city_id": "UK-DEHRADUN",
-    "name": "Dehradun",
+    "name": "Chandrabani",
     "operational_status": "ELEVATED",
     "confidence": 0.74,
     "reasons": ["drain_overload", "road_avoidance_present"],
@@ -277,13 +335,26 @@ All GeoJSON coordinates must use `[longitude, latitude]`.
   "provenance": {
     "data_label": "SIMULATED",
     "sources": ["SENSOR-SIM-RAIN-SOIL-01"],
-    "static_verification_status": "ESTIMATED"
+    "static_verification_status": "ESTIMATED",
+    "terrain_source": "OpenTopoData SRTM 30m elevation API",
+    "terrain_source_status": "OPEN_REAL_DATA",
+    "catchment_geometry_status": "ESTIMATED"
   },
   "last_updated": "2026-09-09T17:30:00Z",
   "fused_state": "FusedCatchmentState v2.1",
   "hydrology": {
     "runoff_mm": 18.2,
     "concentration_time_minutes": 26.0
+  },
+  "terrain": {
+    "mean_elevation_m": 605.1,
+    "min_elevation_m": 594.0,
+    "max_elevation_m": 646.0,
+    "mean_slope_deg": 0.46,
+    "mean_slope_fraction": 0.0079,
+    "source_status": "OPEN_REAL_DATA",
+    "hand_m": null,
+    "twi": null
   },
   "anticipation": {
     "trend": "RISING",
@@ -311,6 +382,8 @@ All GeoJSON coordinates must use `[longitude, latitude]`.
   "provenance": {
     "data_label": "SIMULATED",
     "capacity_verification_status": "ESTIMATED",
+    "geometry_source_status": "OPEN_REAL_DATA",
+    "geometry_basis": "Aligned to nearby OpenStreetMap stream geometry; not a verified municipal storm-drain asset.",
     "sources": ["UK-CHM-DEHRADUN-01"]
   },
   "last_updated": "2026-09-09T17:30:00Z",
@@ -337,7 +410,10 @@ All GeoJSON coordinates must use `[longitude, latitude]`.
   "reasons": ["nearby_drain_over_capacity", "catchment_flood_risk_high"],
   "provenance": {
     "data_label": "SIMULATED",
-    "road_verification_status": "ESTIMATED",
+    "road_source": "OpenStreetMap",
+    "road_source_osm_id": 114099376,
+    "road_verification_status": "OPEN_REAL_DATA",
+    "hazard_status_basis": "MODEL_RECOMMENDATION",
     "sources": ["D-22", "UK-CHM-DEHRADUN-01"]
   },
   "last_updated": "2026-09-09T17:30:00Z",
@@ -358,8 +434,8 @@ All GeoJSON coordinates must use `[longitude, latitude]`.
   "snapshot_id": "snap_20260909T173000Z",
   "catchment_id": "UK-CHM-DEHRADUN-01",
   "location": {
-    "latitude": 30.3165,
-    "longitude": 78.0322
+    "latitude": 30.285029,
+    "longitude": 77.978689
   },
   "measurements": {
     "rainfall_intensity_mm_per_hr": {
@@ -418,12 +494,12 @@ All GeoJSON coordinates must use `[longitude, latitude]`.
 ```json
 {
   "origin": {
-    "longitude": 78.0322,
-    "latitude": 30.3165
+    "longitude": 77.978689,
+    "latitude": 30.285029
   },
   "destination": {
-    "longitude": 78.0460,
-    "latitude": 30.3290
+    "longitude": 77.9940942,
+    "latitude": 30.28497
   },
   "strategy": "safest",
   "snapshot_id": "snap_20260909T173000Z"
@@ -449,7 +525,7 @@ Supported strategies:
     "strategy": "safest",
     "geometry": {
       "type": "LineString",
-      "coordinates": [[78.0322, 30.3165], [78.0460, 30.3290]]
+      "coordinates": [[77.978689, 30.285029], [77.9940942, 30.28497]]
     },
     "travel_time_minutes": 18.0,
     "distance_km": 2.4,
@@ -578,6 +654,94 @@ Events provide traceability for what changed and when. They are not official clo
 
 Synthetic/development model metadata must stay visibly labelled and must not be presented as operational validation.
 
+### 4.13 Map Location Inspection
+
+**Endpoint:** `GET /api/v1/map/inspect?longitude={longitude}&latitude={latitude}`
+
+Coordinate inspection is a backend-facing GIS query for an arbitrary map point.
+Frontend components must not invent terrain, hydrology, infrastructure, or
+landslide values client-side. If a value is not available, the response must
+return `null` or a clear `"Not available"` value with `status="NOT_AVAILABLE"`.
+
+```json
+{
+  "type": "location",
+  "id": "loc_30.28503_77.97869",
+  "snapshot_id": "snap_20260909T173000Z",
+  "latitude": 30.285029,
+  "longitude": 77.978689,
+  "jurisdiction": "Chandrabani, Dehradun",
+  "ward_or_village": "VILLAGE-CHANDRABANI",
+  "catchment_id": "UK-CHM-DEHRADUN-01",
+  "nearest_road": "Transport Nagar Road",
+  "nearest_stream": "Unnamed OSM stream",
+  "nearest_drain": "D-22",
+  "nearest_shelter": "Demo shelter at Rajaram Mohan Roy Academy POI",
+  "terrain": [
+    {
+      "label": "Nearest SRTM elevation",
+      "value": 596,
+      "unit": "m",
+      "status": "OPEN_REAL_DATA",
+      "source": "OpenTopoData SRTM 30m"
+    },
+    {
+      "label": "Mean slope",
+      "value": 0.46,
+      "unit": "deg",
+      "status": "DERIVED_FROM_REAL_DATA",
+      "source": "OpenTopoData SRTM 30m"
+    },
+    {
+      "label": "HAND",
+      "value": null,
+      "status": "NOT_AVAILABLE"
+    }
+  ],
+  "hydrology": [
+    {
+      "label": "Catchment ID",
+      "value": "UK-CHM-DEHRADUN-01",
+      "status": "ESTIMATED"
+    },
+    {
+      "label": "Nearest OSM stream",
+      "value": "OSM-STREAM-234936176",
+      "status": "OPEN_REAL_DATA"
+    },
+    {
+      "label": "Municipal drain capacity",
+      "value": null,
+      "status": "ESTIMATED"
+    }
+  ],
+  "hazard_context": [
+    {
+      "label": "Local flood risk",
+      "value": "WARNING",
+      "status": "SIMULATED"
+    },
+    {
+      "label": "Landslide inventory",
+      "value": "Not available",
+      "status": "NOT_AVAILABLE"
+    }
+  ],
+  "data_quality": [
+    {
+      "label": "Road/stream source",
+      "value": "OpenStreetMap",
+      "status": "OPEN_REAL_DATA"
+    },
+    {
+      "label": "Shelter designation",
+      "value": "Demo only",
+      "status": "DEMO"
+    }
+  ]
+}
+```
+
 ---
 
 ## 5. Static Data Verification
@@ -592,11 +756,15 @@ Measurement provenance is limited to:
 
 Static assets such as catchment polygons, road geometry, drain geometry, DEM-derived slope, shelter capacity, and historical landslide inventories may separately expose:
 
-- `verification_status`: `VERIFIED`, `DERIVED`, `ESTIMATED`, or `UNKNOWN`
+- `source_status`: `AUTHORITATIVE`, `OPEN_REAL_DATA`, `DERIVED_FROM_REAL_DATA`, `ESTIMATED`, `DEMO`, or `NOT_AVAILABLE`
 - `source_name`
 - `source_updated_at`
+- `dataset_version`
+- `license`
+- `processing_steps`
+- `limitations`
 
-Do not map static `VERIFIED` evidence into measurement `OBSERVED`.
+Do not map static `AUTHORITATIVE` or `OPEN_REAL_DATA` evidence into measurement `OBSERVED`.
 
 ---
 

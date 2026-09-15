@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from pravaha_data.demo.ids import DEMO_CATCHMENT_ID
+from pravaha_data.gis.study_area import study_area_bbox
 from pravaha_data.models.observation import Location
 
 
@@ -39,14 +40,15 @@ class DemoCatchmentAssigner:
 
     @classmethod
     def dehradun_demo(cls) -> "DemoCatchmentAssigner":
+        bbox = study_area_bbox()
         return cls(
             (
                 BoundingBoxCatchment(
                     catchment_id=DEMO_CATCHMENT_ID,
-                    min_latitude=30.25,
-                    max_latitude=30.38,
-                    min_longitude=77.96,
-                    max_longitude=78.10,
+                    min_latitude=bbox["south"],
+                    max_latitude=bbox["north"],
+                    min_longitude=bbox["west"],
+                    max_longitude=bbox["east"],
                     provenance="ESTIMATED",
                 ),
             )
