@@ -1,4 +1,4 @@
-# PRAVAHA Canonical Data Contracts (v2.1 - Hardened Temporal & Provenance)
+# PRAVAHA Canonical Data Contracts (v2.4 - PS 26192 Integration)
 
 > [!NOTE]
 > **ARCHITECTURE / CONTRACT CHANGE ALERT (v2.1)**
@@ -11,6 +11,19 @@
 > - **Change**: Preserves external raw sensor `location.lat/location.lon`, makes `FusedCatchmentState v2.1` the live ML boundary, and proposes stable Backend <-> Frontend map/detail/route DTOs.
 > - **Rationale**: ML should consume canonical fused catchment state, not raw sensor payloads. Backend and Frontend need stable route, map, provenance, confidence, and `NO_SAFE_ROUTE` semantics before integration.
 > - **Safety**: `CLOSED` is authority-confirmed only. AI-predicted unsafe roads remain `AVOID`. `NO_SAFE_ROUTE` is an explicit API response, not an exception leak.
+
+> [!NOTE]
+> **ARCHITECTURE / CONTRACT CHANGE ALERT (v2.3 proposal)**
+> - **Change**: Adds the `DEMO-001` monitoring snapshot, source-health, structured-event, and model-metadata contracts used by Backend and Frontend.
+> - **IDs**: Shared DTOs use `catchment_id`, `ward_id`, `village_id`, `road_id`, `drain_id`, `sensor_id`, `shelter_id`, `bridge_id`, `landslide_zone_id`, `alert_id`, `prediction_id`, `snapshot_id`, `route_id`, and `scenario_id`.
+> - **Demo IDs**: `DEMO-001` uses one coherent namespace: `UK-CHM-DEHRADUN-01`, `WARD-DEHRADUN-07`, `VILLAGE-CHANDRABANI`, `D-22`, `ROAD-SHELTER-CORRIDOR`, `ROAD-HIGHER-GROUND-BYPASS`, `ROAD-BRIDGE-APPROACH`, `SENSOR-SIM-RAIN-SOIL-01`, `SENSOR-SIM-RAIN-SOIL-02`, `SHELTER-SCHOOL-01`, and `LANDSLIDE-ZONE-S-01`.
+
+> [!NOTE]
+> **ARCHITECTURE / CONTRACT CHANGE ALERT (v2.4 proposal)**
+> - **Change**: Makes event-time ingestion explicit with `observed_at`, optional `received_at`, and optional measurement `provenance`; keeps `timestamp` as a backward-compatible alias for `observed_at`.
+> - **Change**: Defines Data/IoT live-state endpoints for sensor ingestion, Open-Meteo ingestion, catchment state retrieval, and source health.
+> - **Change**: Aligns the route API with the implemented Backend and Frontend DTO: `ROUTE_FOUND` returns `selected_route` plus `alternatives`; `NO_SAFE_ROUTE` returns a list of blocking route segments.
+> - **Safety**: API mode should request the latest Backend monitoring snapshot by default. Scenario-stage query parameters are for deterministic demo review and must not be the only path by which the Frontend can observe real sensor updates.
 
 This document is the absolute source of truth across all 4 repositories (`flood-data-iot`, `flood-ml`, `flood-backend`, `flood-frontend`).
 
@@ -25,8 +38,10 @@ This is the external payload sent by IoT nodes or simulators prior to normalizat
 
 ```json
 {
-  "device_id": "SIM_NODE_04",
-  "timestamp": "2026-09-09T17:30:00Z",
+  "device_id": "SENSOR-SIM-RAIN-SOIL-01",
+  "observed_at": "2026-09-09T17:30:00Z",
+  "received_at": "2026-09-09T17:30:04Z",
+  "provenance": "OBSERVED",
   "location": {
     "village": "Example Village",
     "ward": "Ward 1",
@@ -46,6 +61,9 @@ This is the external payload sent by IoT nodes or simulators prior to normalizat
 - `soil_moisture_percentage` is bounded $[0, 100]$.
 - `slope_tilt_degrees` is local node physical tilt, distinct from static DEM GIS terrain slope.
 - External raw sensor coordinates are `lat`/`lon`. Internal canonical observations normalize them to `latitude`/`longitude`.
+- `observed_at` is the sensor event time. `timestamp` remains an accepted compatibility alias for existing clients.
+- `received_at` is optional. If omitted, Backend/Data may use server receive time.
+- `provenance` defaults to `OBSERVED`. `SIMULATED` is allowed only in demo/development mode and must stay visibly tagged.
 
 ---
 
@@ -57,9 +75,10 @@ Internal representation decoupling external vendor APIs from internal processing
 ```json
 {
   "observation_id": "obs_123456",
-  "source_id": "SIM_NODE_04",
+  "source_id": "SENSOR-SIM-RAIN-SOIL-01",
   "source_type": "IOT_SENSOR",
   "observed_at": "2026-09-09T17:30:00Z",
+  "received_at": "2026-09-09T17:30:04Z",
   "location": {
     "latitude": 30.1234,
     "longitude": 78.4567
@@ -89,6 +108,13 @@ Internal representation decoupling external vendor APIs from internal processing
 Produced by the Data Fusion layer for an assigned catchment. Integrates multi-source telemetry, enforces provenance, evaluates Zero-Order Hold time integration, and calculates data quality.
 
 **Endpoint:** `GET /api/v1/catchments/{catchment_id}/state`
+
+Data/IoT endpoint families:
+
+- `POST /api/v1/ingest/sensors`
+- `POST /api/v1/live/open-meteo`
+- `GET /api/v1/catchments/{catchment_id}/state`
+- `GET /api/v1/system/source-health`
 
 ```json
 {
@@ -191,10 +217,16 @@ Static map/GIS assets may expose `verification_status` separately from measureme
 
 **Endpoint:** `GET /api/v1/map/intelligence`
 
+If `scenario_stage` is omitted, Backend returns the latest monitoring snapshot
+or builds one from configured live services. `scenario_stage` is reserved for
+deterministic demo review.
+
 ```json
 {
   "snapshot_id": "snap_20260909T173000Z",
   "generated_at": "2026-09-09T17:30:00Z",
+  "state_time": "2026-09-09T17:30:00Z",
+  "scenario_id": "DEMO-001",
   "mode": "DEMO",
   "data_label": "SIMULATED",
   "city": {
@@ -221,7 +253,10 @@ Static map/GIS assets may expose `verification_status` separately from measureme
     "roads_to_avoid": 1,
     "confirmed_road_closures": 0,
     "active_alerts": 1
-  }
+  },
+  "source_health": [],
+  "events": [],
+  "model_metadata": {}
 }
 ```
 
@@ -241,7 +276,7 @@ All GeoJSON coordinates must use `[longitude, latitude]`.
   "reasons": ["rainfall_increasing", "soil_saturation_high"],
   "provenance": {
     "data_label": "SIMULATED",
-    "sources": ["SIM_NODE_04"],
+    "sources": ["SENSOR-SIM-RAIN-SOIL-01"],
     "static_verification_status": "ESTIMATED"
   },
   "last_updated": "2026-09-09T17:30:00Z",
@@ -267,7 +302,7 @@ All GeoJSON coordinates must use `[longitude, latitude]`.
 
 ```json
 {
-  "drain_id": "DRAIN-01",
+  "drain_id": "D-22",
   "snapshot_id": "snap_20260909T173000Z",
   "risk_score": 0.72,
   "risk_level": "HIGH",
@@ -293,7 +328,7 @@ All GeoJSON coordinates must use `[longitude, latitude]`.
 
 ```json
 {
-  "road_id": "ROAD-01",
+  "road_id": "ROAD-SHELTER-CORRIDOR",
   "snapshot_id": "snap_20260909T173000Z",
   "risk_score": 0.78,
   "risk_level": "HIGH",
@@ -303,10 +338,10 @@ All GeoJSON coordinates must use `[longitude, latitude]`.
   "provenance": {
     "data_label": "SIMULATED",
     "road_verification_status": "ESTIMATED",
-    "sources": ["DRAIN-01", "UK-CHM-DEHRADUN-01"]
+    "sources": ["D-22", "UK-CHM-DEHRADUN-01"]
   },
   "last_updated": "2026-09-09T17:30:00Z",
-  "associated_drain_id": "DRAIN-01",
+  "associated_drain_id": "D-22",
   "authority_closed": false
 }
 ```
@@ -319,7 +354,7 @@ All GeoJSON coordinates must use `[longitude, latitude]`.
 
 ```json
 {
-  "device_id": "SIM_NODE_04",
+  "device_id": "SENSOR-SIM-RAIN-SOIL-01",
   "snapshot_id": "snap_20260909T173000Z",
   "catchment_id": "UK-CHM-DEHRADUN-01",
   "location": {
@@ -343,7 +378,7 @@ All GeoJSON coordinates must use `[longitude, latitude]`.
   },
   "provenance": {
     "data_label": "SIMULATED",
-    "sources": ["SIM_NODE_04"]
+    "sources": ["SENSOR-SIM-RAIN-SOIL-01"]
   },
   "last_updated": "2026-09-09T17:30:00Z"
 }
@@ -360,7 +395,7 @@ All GeoJSON coordinates must use `[longitude, latitude]`.
     {
       "alert_id": "ALERT-001",
       "scope_type": "ROAD",
-      "scope_id": "ROAD-01",
+      "scope_id": "ROAD-SHELTER-CORRIDOR",
       "risk_score": 0.78,
       "risk_level": "HIGH",
       "confidence": 0.68,
@@ -368,7 +403,7 @@ All GeoJSON coordinates must use `[longitude, latitude]`.
       "reasons": ["nearby_drain_over_capacity"],
       "provenance": {
         "data_label": "SIMULATED",
-        "sources": ["DRAIN-01"]
+        "sources": ["D-22"]
       },
       "last_updated": "2026-09-09T17:30:00Z"
     }
@@ -407,27 +442,31 @@ Supported strategies:
 {
   "status": "ROUTE_FOUND",
   "snapshot_id": "snap_20260909T173000Z",
-  "strategy": "safest",
-  "route": {
+  "generated_at": "2026-09-09T17:30:00Z",
+  "selected_route": {
     "route_id": "ROUTE-001",
+    "label": "Bypass via higher ground",
+    "strategy": "safest",
     "geometry": {
       "type": "LineString",
       "coordinates": [[78.0322, 30.3165], [78.0460, 30.3290]]
     },
     "travel_time_minutes": 18.0,
-    "distance_m": 2400.0,
+    "distance_km": 2.4,
     "maximum_risk_score": 0.42,
     "minimum_confidence": 0.74,
-    "recommendation": "CAUTION",
+    "additional_time_vs_fastest_minutes": 7.0,
     "unsafe_segments_avoided": 1,
     "closures_avoided": 0,
-    "reasons": ["predicted_unsafe_segments_excluded"],
-    "provenance": {
-      "data_label": "SIMULATED",
-      "sources": ["ROAD-01", "ROAD-02"]
-    },
-    "last_updated": "2026-09-09T17:30:00Z"
-  }
+    "explanation": ["predicted_unsafe_segments_excluded"],
+    "segments": []
+  },
+  "alternatives": [],
+  "provenance": {
+    "data_label": "SIMULATED",
+    "sources": ["ROAD-SHELTER-CORRIDOR", "ROAD-HIGHER-GROUND-BYPASS"]
+  },
+  "safety_note": "PRAVAHA is decision support and does not guarantee route safety."
 }
 ```
 
@@ -437,23 +476,107 @@ Supported strategies:
 {
   "status": "NO_SAFE_ROUTE",
   "snapshot_id": "snap_20260909T173000Z",
-  "strategy": "safest",
+  "generated_at": "2026-09-09T17:30:00Z",
   "reason_code": "ALL_CANDIDATE_ROUTES_BLOCKED",
   "message": "No route meeting the configured safety policy is available.",
-  "blocked_by": {
-    "closed_road_ids": ["ROAD-03"],
-    "avoid_road_ids": ["ROAD-01", "ROAD-02"]
-  },
-  "confidence": 0.72,
+  "blocked_by": [
+    {
+      "road_id": "ROAD-BRIDGE-APPROACH",
+      "recommendation": "CLOSED",
+      "risk_score": 0.95,
+      "risk_level": "SEVERE",
+      "confidence": 0.72,
+      "reasons": ["authority_confirmed_closure"]
+    },
+    {
+      "road_id": "ROAD-SHELTER-CORRIDOR",
+      "recommendation": "AVOID",
+      "risk_score": 0.82,
+      "risk_level": "HIGH",
+      "confidence": 0.68,
+      "reasons": ["model_derived_flood_exposure"]
+    }
+  ],
   "provenance": {
     "data_label": "SIMULATED",
-    "sources": ["ROAD-01", "ROAD-02", "ROAD-03"]
+    "sources": ["ROAD-SHELTER-CORRIDOR", "ROAD-HIGHER-GROUND-BYPASS", "ROAD-BRIDGE-APPROACH"]
   },
-  "last_updated": "2026-09-09T17:30:00Z"
+  "safety_note": "PRAVAHA is decision support and does not guarantee route safety."
 }
 ```
 
 `NO_SAFE_ROUTE` must be returned as an explicit domain response. It must not be exposed as a stack trace, uncaught exception, or fabricated "safe" route.
+
+### 4.10 Source Health
+
+**Backend Endpoint:** `GET /api/v1/system/health`
+
+**Data/IoT Endpoint:** `GET /api/v1/system/source-health`
+
+```json
+{
+  "source_id": "SENSOR-SIM-RAIN-SOIL-01",
+  "name": "Demo rainfall and soil node",
+  "category": "IOT_SENSOR",
+  "status": "SIMULATED",
+  "last_success_at": "2026-09-09T17:30:04Z",
+  "last_observation_at": "2026-09-09T17:30:00Z",
+  "age_seconds": 4,
+  "expected_interval_seconds": 900,
+  "freshness": "GOOD",
+  "provenance": "SIMULATED",
+  "message": "Deterministic DEMO-001 source"
+}
+```
+
+Allowed source-health statuses are `HEALTHY`, `DEGRADED`, `UNAVAILABLE`, `STATIC`, and `SIMULATED`.
+
+### 4.11 Structured Events
+
+**Endpoint:** `GET /api/v1/events`
+
+```json
+{
+  "event_id": "EVENT-DEMO-001-003",
+  "snapshot_id": "snap_20260909T173000Z",
+  "generated_at": "2026-09-09T17:30:00Z",
+  "entity_type": "road",
+  "entity_id": "ROAD-SHELTER-CORRIDOR",
+  "event_type": "ROAD_RECOMMENDATION_CHANGED",
+  "previous_value": "CAUTION",
+  "current_value": "AVOID",
+  "severity": "WARNING",
+  "title": "Road recommendation changed",
+  "message": "Road recommendation changed to AVOID because D-22 exceeded estimated capacity.",
+  "reasons": ["nearby_drain_over_capacity"],
+  "provenance": {
+    "data_label": "SIMULATED",
+    "sources": ["D-22", "ROAD-SHELTER-CORRIDOR"]
+  }
+}
+```
+
+Events provide traceability for what changed and when. They are not official closure or evacuation-order records.
+
+### 4.12 Model Metadata
+
+```json
+{
+  "prediction_id": "PRED-DEMO-001-WARNING",
+  "model_version": "synthetic-development-v1",
+  "generated_at": "2026-09-09T17:30:00Z",
+  "input_state_time": "2026-09-09T17:30:00Z",
+  "risk_score": 0.64,
+  "risk_level": "WARNING",
+  "confidence": 0.76,
+  "data_quality_score": 0.9,
+  "top_factors": ["rainfall_increasing", "soil_saturation_high", "drain_overload"],
+  "runtime_status": "DEVELOPMENT_FALLBACK",
+  "operationally_validated": false
+}
+```
+
+Synthetic/development model metadata must stay visibly labelled and must not be presented as operational validation.
 
 ---
 

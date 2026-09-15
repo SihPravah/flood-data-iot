@@ -1,6 +1,8 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field
+
+from pravaha_data.models.provenance import DataStatus
 
 
 class RawSensorLocation(BaseModel):
@@ -17,7 +19,14 @@ class RawSensorMetrics(BaseModel):
 
 
 class RawSensorPayload(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     device_id: str
-    timestamp: datetime
+    timestamp: datetime = Field(
+        validation_alias=AliasChoices("timestamp", "observed_at"),
+        serialization_alias="timestamp",
+    )
+    received_at: datetime | None = None
+    provenance: DataStatus = DataStatus.OBSERVED
     location: RawSensorLocation
     sensor_metrics: RawSensorMetrics

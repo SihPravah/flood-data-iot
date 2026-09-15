@@ -8,6 +8,11 @@ from pravaha_data.models.provenance import DataStatus
 from pravaha_data.models.raw_sensor import RawSensorPayload
 from pravaha_data.normalization.observations import normalize_raw_sensor
 from pravaha_data.temporal.history import TemporalHistory
+from pravaha_data.demo.ids import (
+    DEMO_CATCHMENT_ID,
+    DEMO_SENSOR_PRIMARY_ID,
+    DEMO_SCENARIO_ID,
+)
 
 
 class DemoStage(str, Enum):
@@ -17,8 +22,7 @@ class DemoStage(str, Enum):
     SEVERE = "SEVERE"
 
 
-DEMO_CATCHMENT_ID = "UK-CHM-DEHRADUN-01"
-DEMO_DEVICE_ID = "SIM_NODE_04"
+DEMO_DEVICE_ID = DEMO_SENSOR_PRIMARY_ID
 DEMO_BASE_TIME = datetime(2026, 9, 9, 8, 0, 0, tzinfo=timezone.utc)
 DEMO_LOCATION = {
     "village": "Example Village",
@@ -93,7 +97,11 @@ def build_demo_observations(stage: DemoStage) -> tuple[CanonicalObservation, ...
             soil_moisture_percentage=soil,
         )
         observations.append(
-            normalize_raw_sensor(payload, measurement_status=DataStatus.SIMULATED)
+            normalize_raw_sensor(
+                payload,
+                measurement_status=DataStatus.SIMULATED,
+                received_at=payload.timestamp,
+            )
         )
 
     return tuple(observations)

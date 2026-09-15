@@ -5,12 +5,13 @@ import pytest
 from pravaha_data.models.provenance import DataStatus
 from pravaha_data.models.raw_sensor import RawSensorPayload
 from pravaha_data.normalization.observations import normalize_raw_sensor
+from pravaha_data.demo.ids import DEMO_SENSOR_PRIMARY_ID
 
 
 def make_payload() -> RawSensorPayload:
     return RawSensorPayload.model_validate(
         {
-            "device_id": "SIM_NODE_04",
+            "device_id": DEMO_SENSOR_PRIMARY_ID,
             "timestamp": "2026-09-09T17:30:00Z",
             "location": {
                 "village": "Example Village",

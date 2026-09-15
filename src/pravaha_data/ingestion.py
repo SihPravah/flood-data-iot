@@ -4,18 +4,18 @@ from pravaha_data.adapters.simulated_iot import SimulatedIoTAdapter
 from pravaha_data.normalization.observations import normalize_open_meteo, normalize_simulated_iot
 from pravaha_data.temporal.history import TemporalHistory
 from pravaha_data.fusion.catchment_fusion import fuse_catchment_state
+from pravaha_data.demo.ids import DEMO_CATCHMENT_ID, DEMO_SENSOR_PRIMARY_ID
 
-# Hardcoded for Demo purposes, but GIS integration will replace this
+# Demo coordinates are explicit and replaceable by GIS integration.
 TARGET_LAT = 30.3165
 TARGET_LON = 78.0322
-DEMO_CATCHMENT_ID = "UK-CHM-DEHRADUN-01"
 
 def run_pipeline():
     print(f"Starting PRAVAHA Data Ingestion & Fusion Engine for {DEMO_CATCHMENT_ID}...\n")
     
     # 1. Initialize Adapters & History
     weather_api = OpenMeteoAdapter(latitude=TARGET_LAT, longitude=TARGET_LON)
-    iot_sensor = SimulatedIoTAdapter(device_id="SIM_NODE_04", latitude=TARGET_LAT, longitude=TARGET_LON)
+    iot_sensor = SimulatedIoTAdapter(device_id=DEMO_SENSOR_PRIMARY_ID, latitude=TARGET_LAT, longitude=TARGET_LON)
     history = TemporalHistory()
 
     try:

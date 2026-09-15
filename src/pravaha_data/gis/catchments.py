@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from pravaha_data.demo.ids import DEMO_CATCHMENT_ID
 from pravaha_data.models.observation import Location
 
 
@@ -41,7 +42,7 @@ class DemoCatchmentAssigner:
         return cls(
             (
                 BoundingBoxCatchment(
-                    catchment_id="UK-CHM-DEHRADUN-01",
+                    catchment_id=DEMO_CATCHMENT_ID,
                     min_latitude=30.25,
                     max_latitude=30.38,
                     min_longitude=77.96,
