@@ -18,7 +18,10 @@ class TemporalHistory:
     def add_observation(self, obs: CanonicalObservation):
         """Add a canonical observation and prune records older than retention window."""
         self.observations.append(obs)
-        self.prune()
+        # Prune relative to the most recent observation time (not wall clock),
+        # so tests using fixed timestamps remain stable regardless of when they run.
+        latest = max(o.observed_at for o in self.observations)
+        self.prune(as_of=latest)
 
     def prune(self, as_of: Optional[datetime] = None):
         """Prune observations older than retention period."""
