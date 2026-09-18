@@ -1,6 +1,5 @@
 import random
 from datetime import datetime, timezone
-import uuid
 from typing import Dict, Any
 
 class SimulatedIoTAdapter:
@@ -22,4 +21,21 @@ class SimulatedIoTAdapter:
                 "soil_moisture_percentage": random.uniform(50.0, 90.0),
                 "slope_tilt_degrees": random.uniform(0.0, 5.0)
             }
+        }
+
+    def generate_raw_sensor_payload(self) -> Dict[str, Any]:
+        return {
+            "device_id": self.device_id,
+            "timestamp": datetime.now(timezone.utc),
+            "location": {
+                "village": "Demo Village",
+                "ward": "Demo Ward",
+                "lat": self.latitude,
+                "lon": self.longitude,
+            },
+            "sensor_metrics": {
+                "rainfall_mm_per_hr": random.uniform(0.0, 20.0),
+                "soil_moisture_percentage": random.uniform(50.0, 90.0),
+                "slope_tilt_degrees": random.uniform(0.0, 5.0),
+            },
         }

@@ -1,0 +1,32 @@
+from datetime import datetime
+
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field
+
+from pravaha_data.models.provenance import DataStatus
+
+
+class RawSensorLocation(BaseModel):
+    village: str
+    ward: str
+    lat: float = Field(ge=-90.0, le=90.0)
+    lon: float = Field(ge=-180.0, le=180.0)
+
+
+class RawSensorMetrics(BaseModel):
+    rainfall_mm_per_hr: float = Field(ge=0.0)
+    soil_moisture_percentage: float = Field(ge=0.0, le=100.0)
+    slope_tilt_degrees: float
+
+
+class RawSensorPayload(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    device_id: str
+    timestamp: datetime = Field(
+        validation_alias=AliasChoices("timestamp", "observed_at"),
+        serialization_alias="timestamp",
+    )
+    received_at: datetime | None = None
+    provenance: DataStatus = DataStatus.OBSERVED
+    location: RawSensorLocation
+    sensor_metrics: RawSensorMetrics

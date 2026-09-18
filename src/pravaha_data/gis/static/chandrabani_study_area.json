@@ -1,0 +1,864 @@
+{
+  "layers": {
+    "catchments": {
+      "features": [
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  77.968,
+                  30.27
+                ],
+                [
+                  78.0,
+                  30.27
+                ],
+                [
+                  78.0,
+                  30.3
+                ],
+                [
+                  77.968,
+                  30.3
+                ],
+                [
+                  77.968,
+                  30.27
+                ]
+              ]
+            ],
+            "type": "Polygon"
+          },
+          "id": "UK-CHM-DEHRADUN-01",
+          "properties": {
+            "area_km2": 10.25,
+            "entityType": "catchment",
+            "geometry_basis": "Focused MVP micro-catchment envelope around Chandrabani; not an authoritative watershed polygon.",
+            "id": "UK-CHM-DEHRADUN-01",
+            "mean_elevation_m": 605.1,
+            "mean_slope_deg": 0.46,
+            "mean_slope_fraction": 0.0079,
+            "name": "Chandrabani focused micro-catchment",
+            "source_status": "ESTIMATED"
+          },
+          "type": "Feature"
+        }
+      ],
+      "type": "FeatureCollection"
+    },
+    "critical_assets": {
+      "features": [
+        {
+          "geometry": {
+            "coordinates": [
+              77.9940959,
+              30.2737504
+            ],
+            "type": "Point"
+          },
+          "id": "osm-node-4254488391",
+          "properties": {
+            "amenity": "school",
+            "dataset_version": "2026-07-24T11:04:51Z",
+            "entityType": "critical_asset",
+            "id": "osm-node-4254488391",
+            "name": "Arya Inter College Subhash Nagar",
+            "source": "OpenStreetMap",
+            "source_osm_id": 4254488391,
+            "source_osm_type": "node",
+            "source_status": "OPEN_REAL_DATA"
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              77.9940942,
+              30.28497
+            ],
+            "type": "Point"
+          },
+          "id": "osm-node-4254504794",
+          "properties": {
+            "amenity": "school",
+            "dataset_version": "2026-07-24T11:04:51Z",
+            "entityType": "critical_asset",
+            "id": "osm-node-4254504794",
+            "name": "Rajaram Mohan Roy Academy",
+            "source": "OpenStreetMap",
+            "source_osm_id": 4254504794,
+            "source_osm_type": "node",
+            "source_status": "OPEN_REAL_DATA"
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              77.9976318,
+              30.2727803
+            ],
+            "type": "Point"
+          },
+          "id": "osm-node-4712005944",
+          "properties": {
+            "amenity": "school",
+            "dataset_version": "2026-07-24T11:04:51Z",
+            "entityType": "critical_asset",
+            "id": "osm-node-4712005944",
+            "name": "St. Mary's Sec. School",
+            "source": "OpenStreetMap",
+            "source_osm_id": 4712005944,
+            "source_osm_type": "node",
+            "source_status": "OPEN_REAL_DATA"
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              77.997745,
+              30.2837296
+            ],
+            "type": "Point"
+          },
+          "id": "osm-node-6950253649",
+          "properties": {
+            "amenity": "clinic",
+            "dataset_version": "2026-07-24T11:04:51Z",
+            "entityType": "critical_asset",
+            "id": "osm-node-6950253649",
+            "name": "Baunthiyal Nursing Home",
+            "source": "OpenStreetMap",
+            "source_osm_id": 6950253649,
+            "source_osm_type": "node",
+            "source_status": "OPEN_REAL_DATA"
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              77.9986905,
+              30.2919587
+            ],
+            "type": "Point"
+          },
+          "id": "osm-node-6956686347",
+          "properties": {
+            "amenity": "hospital",
+            "dataset_version": "2026-07-24T11:04:51Z",
+            "entityType": "critical_asset",
+            "id": "osm-node-6956686347",
+            "name": "Minocha Hospital and Maternity Home",
+            "source": "OpenStreetMap",
+            "source_osm_id": 6956686347,
+            "source_osm_type": "node",
+            "source_status": "OPEN_REAL_DATA"
+          },
+          "type": "Feature"
+        }
+      ],
+      "type": "FeatureCollection"
+    },
+    "drains": {
+      "features": [
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                77.9883529,
+                30.2996786
+              ],
+              [
+                77.9864617,
+                30.2978559
+              ],
+              [
+                77.9831561,
+                30.2950073
+              ],
+              [
+                77.9815021,
+                30.2941741
+              ],
+              [
+                77.9807278,
+                30.291094
+              ],
+              [
+                77.9787451,
+                30.2892119
+              ],
+              [
+                77.9768518,
+                30.2877356
+              ]
+            ],
+            "type": "LineString"
+          },
+          "id": "D-22",
+          "properties": {
+            "capacity_verification_status": "ESTIMATED",
+            "dataset_version": "2026-07-24T11:04:51Z",
+            "entityType": "drain",
+            "geometry_basis": "Aligned to nearby OSM stream corridor only for demo spatial context; not a verified municipal storm-drain asset.",
+            "id": "D-22",
+            "name": "D-22 estimated municipal collector",
+            "source": "OpenStreetMap stream geometry plus PRAVAHA estimated drain profile",
+            "source_osm_id": 234936176,
+            "source_status": "ESTIMATED"
+          },
+          "type": "Feature"
+        }
+      ],
+      "type": "FeatureCollection"
+    },
+    "landslide": {
+      "features": [
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  77.971,
+                  30.29
+                ],
+                [
+                  77.98,
+                  30.29
+                ],
+                [
+                  77.98,
+                  30.298
+                ],
+                [
+                  77.971,
+                  30.298
+                ],
+                [
+                  77.971,
+                  30.29
+                ]
+              ]
+            ],
+            "type": "Polygon"
+          },
+          "id": "LANDSLIDE-ZONE-S-01",
+          "properties": {
+            "basis": "Retained only as DEMO-001 susceptibility fixture; no local historical landslide inventory is committed for this box.",
+            "entityType": "landslide",
+            "historical_inventory_status": "NOT_AVAILABLE",
+            "id": "LANDSLIDE-ZONE-S-01",
+            "name": "DEMO steep-slope susceptibility zone",
+            "source_status": "DEMO"
+          },
+          "type": "Feature"
+        }
+      ],
+      "type": "FeatureCollection"
+    },
+    "rivers": {
+      "features": [
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                77.9883529,
+                30.2996786
+              ],
+              [
+                77.9864617,
+                30.2978559
+              ],
+              [
+                77.9831561,
+                30.2950073
+              ],
+              [
+                77.9815021,
+                30.2941741
+              ],
+              [
+                77.9807278,
+                30.291094
+              ],
+              [
+                77.9787451,
+                30.2892119
+              ],
+              [
+                77.9768518,
+                30.2877356
+              ]
+            ],
+            "type": "LineString"
+          },
+          "id": "osm-way-234936176",
+          "properties": {
+            "dataset_version": "2026-07-24T11:04:51Z",
+            "entityType": "river",
+            "id": "osm-way-234936176",
+            "name": "Unnamed stream",
+            "source": "OpenStreetMap",
+            "source_osm_id": 234936176,
+            "source_osm_type": "way",
+            "source_status": "OPEN_REAL_DATA",
+            "waterway": "stream"
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                77.9941677,
+                30.2670408
+              ],
+              [
+                77.9951746,
+                30.267901
+              ],
+              [
+                77.9974513,
+                30.2681925
+              ],
+              [
+                78.0009147,
+                30.2692374
+              ],
+              [
+                78.0031384,
+                30.2686126
+              ],
+              [
+                78.0076194,
+                30.2691961
+              ]
+            ],
+            "type": "LineString"
+          },
+          "id": "osm-way-1154487446",
+          "properties": {
+            "dataset_version": "2026-07-24T11:04:51Z",
+            "entityType": "river",
+            "id": "osm-way-1154487446",
+            "name": "Unnamed stream",
+            "source": "OpenStreetMap",
+            "source_osm_id": 1154487446,
+            "source_osm_type": "way",
+            "source_status": "OPEN_REAL_DATA",
+            "waterway": "stream"
+          },
+          "type": "Feature"
+        }
+      ],
+      "type": "FeatureCollection"
+    },
+    "roads": {
+      "features": [
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                77.9921844,
+                30.2815189
+              ],
+              [
+                77.9912487,
+                30.2822485
+              ],
+              [
+                77.9919438,
+                30.2838838
+              ],
+              [
+                77.9926018,
+                30.2854228
+              ],
+              [
+                77.9936385,
+                30.2876034
+              ],
+              [
+                77.994848,
+                30.2898648
+              ],
+              [
+                77.9974537,
+                30.294051
+              ]
+            ],
+            "type": "LineString"
+          },
+          "id": "ROAD-SHELTER-CORRIDOR",
+          "properties": {
+            "dataset_version": "2026-05-06T03:25:00Z",
+            "entityType": "road",
+            "hazard_status_basis": "MODEL_RECOMMENDATION",
+            "highway": "tertiary",
+            "id": "ROAD-SHELTER-CORRIDOR",
+            "name": "Transport Nagar Road",
+            "oneway": "no",
+            "pravaha_id": "ROAD-SHELTER-CORRIDOR",
+            "road_verification_status": "OPEN_REAL_DATA",
+            "source": "OpenStreetMap",
+            "source_osm_id": 114099376,
+            "source_osm_type": "way",
+            "source_status": "OPEN_REAL_DATA",
+            "surface": "asphalt"
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                77.9889999,
+                30.2752512
+              ],
+              [
+                77.9894658,
+                30.2750446
+              ],
+              [
+                77.990256,
+                30.2745811
+              ],
+              [
+                77.9918576,
+                30.2736417
+              ],
+              [
+                77.9945152,
+                30.2720267
+              ],
+              [
+                77.9965798,
+                30.2700555
+              ]
+            ],
+            "type": "LineString"
+          },
+          "id": "ROAD-HIGHER-GROUND-BYPASS",
+          "properties": {
+            "dataset_version": "2026-05-06T03:25:00Z",
+            "entityType": "road",
+            "hazard_status_basis": "MODEL_RECOMMENDATION",
+            "highway": "tertiary",
+            "id": "ROAD-HIGHER-GROUND-BYPASS",
+            "name": "Post Office Road",
+            "pravaha_id": "ROAD-HIGHER-GROUND-BYPASS",
+            "road_verification_status": "OPEN_REAL_DATA",
+            "source": "OpenStreetMap",
+            "source_osm_id": 101971528,
+            "source_osm_type": "way",
+            "source_status": "OPEN_REAL_DATA"
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                77.9766333,
+                30.2810359
+              ],
+              [
+                77.9767205,
+                30.2809907
+              ]
+            ],
+            "type": "LineString"
+          },
+          "id": "ROAD-BRIDGE-APPROACH",
+          "properties": {
+            "dataset_version": "2026-05-06T03:25:00Z",
+            "entityType": "road",
+            "hazard_status_basis": "DEMO_AUTHORITY_CLOSURE_ONLY",
+            "highway": "unclassified",
+            "id": "ROAD-BRIDGE-APPROACH",
+            "name": "Unnamed Road",
+            "pravaha_id": "ROAD-BRIDGE-APPROACH",
+            "road_verification_status": "OPEN_REAL_DATA",
+            "source": "OpenStreetMap",
+            "source_osm_id": 1095906636,
+            "source_osm_type": "way",
+            "source_status": "OPEN_REAL_DATA"
+          },
+          "type": "Feature"
+        }
+      ],
+      "type": "FeatureCollection"
+    },
+    "shelters": {
+      "features": [
+        {
+          "geometry": {
+            "coordinates": [
+              77.9940942,
+              30.28497
+            ],
+            "type": "Point"
+          },
+          "id": "SHELTER-SCHOOL-01",
+          "properties": {
+            "designation_status": "DEMO_EVACUATION_SHELTER_NOT_AUTHORITY_VERIFIED",
+            "entityType": "shelter",
+            "id": "SHELTER-SCHOOL-01",
+            "name": "Demo shelter at Rajaram Mohan Roy Academy POI",
+            "poi_source_status": "OPEN_REAL_DATA",
+            "source": "OpenStreetMap POI plus PRAVAHA demo designation",
+            "source_osm_id": 4254504794,
+            "source_status": "DEMO",
+            "status": "AVAILABLE"
+          },
+          "type": "Feature"
+        }
+      ],
+      "type": "FeatureCollection"
+    },
+    "wards": {
+      "features": [
+        {
+          "geometry": {
+            "coordinates": [
+              77.978689,
+              30.285029
+            ],
+            "type": "Point"
+          },
+          "id": "VILLAGE-CHANDRABANI",
+          "properties": {
+            "dataset_version": "2026-07-24T11:04:51Z",
+            "entityType": "ward",
+            "id": "VILLAGE-CHANDRABANI",
+            "name": "Chandrabani",
+            "place": "hamlet",
+            "source": "OpenStreetMap",
+            "source_osm_id": 2379693646,
+            "source_osm_type": "node",
+            "source_status": "OPEN_REAL_DATA"
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              77.969722,
+              30.288056
+            ],
+            "type": "Point"
+          },
+          "id": "osm-node-2379693652",
+          "properties": {
+            "dataset_version": "2026-07-24T11:04:51Z",
+            "entityType": "ward",
+            "id": "osm-node-2379693652",
+            "name": "Gulabsinghwala",
+            "place": "hamlet",
+            "source": "OpenStreetMap",
+            "source_osm_id": 2379693652,
+            "source_osm_type": "node",
+            "source_status": "OPEN_REAL_DATA"
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              77.984426,
+              30.292187
+            ],
+            "type": "Point"
+          },
+          "id": "osm-node-2379693694",
+          "properties": {
+            "dataset_version": "2026-07-24T11:04:51Z",
+            "entityType": "ward",
+            "id": "osm-node-2379693694",
+            "name": "Pitthuwala Tarla",
+            "place": "hamlet",
+            "source": "OpenStreetMap",
+            "source_osm_id": 2379693694,
+            "source_osm_type": "node",
+            "source_status": "OPEN_REAL_DATA"
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              77.990146,
+              30.277767
+            ],
+            "type": "Point"
+          },
+          "id": "osm-node-2379693754",
+          "properties": {
+            "dataset_version": "2026-07-24T11:04:51Z",
+            "entityType": "ward",
+            "id": "osm-node-2379693754",
+            "name": "Subhashnagar",
+            "place": "hamlet",
+            "source": "OpenStreetMap",
+            "source_osm_id": 2379693754,
+            "source_osm_type": "node",
+            "source_status": "OPEN_REAL_DATA"
+          },
+          "type": "Feature"
+        }
+      ],
+      "type": "FeatureCollection"
+    }
+  },
+  "limitations": [
+    "Municipal storm-drain geometry and capacity are not authoritative.",
+    "Ward/village polygons are not included; OSM settlement points are used.",
+    "Historical landslide inventory is not available for the focused box.",
+    "DEMO-001 hazards remain simulated dynamic conditions over real base geometry."
+  ],
+  "schema_version": "pravaha-gis-static-v1",
+  "sources": [
+    {
+      "dataset_version": {
+        "context_timestamp_osm_base": "2026-07-24T11:04:51Z",
+        "roads_timestamp_osm_base": "2026-05-06T03:25:00Z"
+      },
+      "downloaded_at": "2026-09-16T00:00:00Z",
+      "license": "Open Database License (ODbL)",
+      "processing_steps": [
+        "Query a bounded Chandrabani study-area extract.",
+        "Convert OSM nodes/ways to EPSG:4326 GeoJSON.",
+        "Assign stable PRAVAHA IDs to selected demo-critical road corridors."
+      ],
+      "source_id": "osm_overpass",
+      "source_name": "OpenStreetMap via Overpass API",
+      "source_status": "OPEN_REAL_DATA",
+      "source_url": "https://www.openstreetmap.org/copyright"
+    },
+    {
+      "dataset_version": "SRTM 30m API endpoint",
+      "downloaded_at": "2026-09-16T00:00:00Z",
+      "license": "See OpenTopoData and upstream SRTM terms.",
+      "processing_steps": [
+        "Sample 25 elevation points across the focused study box.",
+        "Derive representative elevation statistics and slope."
+      ],
+      "source_id": "opentopodata_srtm30m",
+      "source_name": "OpenTopoData SRTM 30m elevation API",
+      "source_status": "OPEN_REAL_DATA",
+      "source_url": "https://api.opentopodata.org/v1/srtm30m"
+    }
+  ],
+  "study_area": {
+    "approx_area_km2": 10.25,
+    "bounding_box": {
+      "east": 78.0,
+      "north": 30.3,
+      "south": 30.27,
+      "west": 77.968
+    },
+    "center": {
+      "latitude": 30.285029,
+      "longitude": 77.978689
+    },
+    "country": "India",
+    "district": "Dehradun",
+    "downloaded_at": "2026-09-16T00:00:00Z",
+    "metric_crs": "EPSG:32643",
+    "name": "Chandrabani focused micro-catchment study area",
+    "public_crs": "EPSG:4326",
+    "reason_selected": "The existing PRAVAHA demo ID names Chandrabani, and OSM provides locality, road, stream and POI coverage for this compact sector.",
+    "state": "Uttarakhand",
+    "study_area_id": "DEHRADUN-CHANDRABANI-PS26192"
+  },
+  "terrain": {
+    "dataset": "SRTM 30m",
+    "derived_status": "DERIVED_FROM_REAL_DATA",
+    "downloaded_at": "2026-09-16T00:00:00Z",
+    "hand_m": null,
+    "limitations": "This is a small sampled terrain asset for the focused demo area; it is not a committed raw DEM raster or a hydrologically filled DEM.",
+    "max_elevation_m": 646.0,
+    "mean_elevation_m": 605.1,
+    "mean_slope_deg": 0.46,
+    "mean_slope_fraction": 0.0079,
+    "min_elevation_m": 594.0,
+    "nodata_count": 0,
+    "processing": "Queried a 5x5 SRTM 30m point grid and derived representative slope from finite elevation differences in metres.",
+    "sample_grid": [
+      {
+        "elevation_m": 646.0,
+        "latitude": 30.27,
+        "longitude": 77.968
+      },
+      {
+        "elevation_m": 634.0,
+        "latitude": 30.27,
+        "longitude": 77.976
+      },
+      {
+        "elevation_m": 617.0,
+        "latitude": 30.27,
+        "longitude": 77.984
+      },
+      {
+        "elevation_m": 610.0,
+        "latitude": 30.27,
+        "longitude": 77.992
+      },
+      {
+        "elevation_m": 600.0,
+        "latitude": 30.27,
+        "longitude": 78.0
+      },
+      {
+        "elevation_m": 609.0,
+        "latitude": 30.2775,
+        "longitude": 77.968
+      },
+      {
+        "elevation_m": 605.0,
+        "latitude": 30.2775,
+        "longitude": 77.976
+      },
+      {
+        "elevation_m": 600.0,
+        "latitude": 30.2775,
+        "longitude": 77.984
+      },
+      {
+        "elevation_m": 599.0,
+        "latitude": 30.2775,
+        "longitude": 77.992
+      },
+      {
+        "elevation_m": 595.0,
+        "latitude": 30.2775,
+        "longitude": 78.0
+      },
+      {
+        "elevation_m": 597.0,
+        "latitude": 30.285,
+        "longitude": 77.968
+      },
+      {
+        "elevation_m": 595.0,
+        "latitude": 30.285,
+        "longitude": 77.976
+      },
+      {
+        "elevation_m": 596.0,
+        "latitude": 30.285,
+        "longitude": 77.984
+      },
+      {
+        "elevation_m": 603.0,
+        "latitude": 30.285,
+        "longitude": 77.992
+      },
+      {
+        "elevation_m": 599.0,
+        "latitude": 30.285,
+        "longitude": 78.0
+      },
+      {
+        "elevation_m": 594.0,
+        "latitude": 30.2925,
+        "longitude": 77.968
+      },
+      {
+        "elevation_m": 595.0,
+        "latitude": 30.2925,
+        "longitude": 77.976
+      },
+      {
+        "elevation_m": 600.0,
+        "latitude": 30.2925,
+        "longitude": 77.984
+      },
+      {
+        "elevation_m": 599.0,
+        "latitude": 30.2925,
+        "longitude": 77.992
+      },
+      {
+        "elevation_m": 609.0,
+        "latitude": 30.2925,
+        "longitude": 78.0
+      },
+      {
+        "elevation_m": 600.0,
+        "latitude": 30.3,
+        "longitude": 77.968
+      },
+      {
+        "elevation_m": 601.0,
+        "latitude": 30.3,
+        "longitude": 77.976
+      },
+      {
+        "elevation_m": 600.0,
+        "latitude": 30.3,
+        "longitude": 77.984
+      },
+      {
+        "elevation_m": 609.0,
+        "latitude": 30.3,
+        "longitude": 77.992
+      },
+      {
+        "elevation_m": 616.0,
+        "latitude": 30.3,
+        "longitude": 78.0
+      }
+    ],
+    "sample_spacing_m": {
+      "east_west": 769.4,
+      "north_south": 834.0
+    },
+    "source_id": "opentopodata_srtm30m",
+    "source_name": "OpenTopoData SRTM 30m elevation API",
+    "source_status": "OPEN_REAL_DATA",
+    "source_url": "https://api.opentopodata.org/v1/srtm30m",
+    "spatial_resolution_m": 30,
+    "twi": null
+  },
+  "validation_points": [
+    {
+      "expected": {
+        "admin_context_available": true,
+        "elevation_non_null": true,
+        "nearest_road_available": true,
+        "nearest_stream_available": true,
+        "within_study_area": true
+      },
+      "latitude": 30.285029,
+      "longitude": 77.978689,
+      "name": "Chandrabani OSM locality point",
+      "point_id": "VP-CHANDRABANI-LOCALITY"
+    },
+    {
+      "expected": {
+        "nearest_road_available": true,
+        "within_study_area": true
+      },
+      "latitude": 30.2854,
+      "longitude": 77.9926,
+      "name": "Transport Nagar Road corridor",
+      "point_id": "VP-TRANSPORT-NAGAR-ROAD"
+    },
+    {
+      "expected": {
+        "critical_asset_available": true,
+        "shelter_designation": "DEMO",
+        "within_study_area": true
+      },
+      "latitude": 30.28497,
+      "longitude": 77.994094,
+      "name": "Mapped school / demo shelter location",
+      "point_id": "VP-SCHOOL-POI"
+    }
+  ]
+}

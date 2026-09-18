@@ -10,18 +10,25 @@ requires-python = ">=3.11,<3.12"
 dependencies = [
     "requests",
     "pydantic",
+    "fastapi",
+    "uvicorn[standard]",
 ]
 
 [project.optional-dependencies]
 test = [
+    "httpx2",
     "pytest",
 ]
 dev = [
+    "httpx2",
     "pytest",
 ]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+pravaha_data = ["gis/static/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

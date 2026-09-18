@@ -1,5 +1,6 @@
 from .provenance import DataStatus, DataQuality
 from .observation import CanonicalObservation, Location, Measurement
+from .raw_sensor import RawSensorLocation, RawSensorMetrics, RawSensorPayload
 from .fused_state import (
     FusedCatchmentState,
     RainfallFeatures,
@@ -12,6 +13,9 @@ from .fused_state import (
 __all__ = [
     "DataStatus",
     "DataQuality",
+    "RawSensorLocation",
+    "RawSensorMetrics",
+    "RawSensorPayload",
     "CanonicalObservation",
     "Location",
     "Measurement",

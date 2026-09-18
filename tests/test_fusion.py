@@ -3,6 +3,7 @@ import pytest
 
 from pravaha_data.models.observation import CanonicalObservation, Location, Measurement
 from pravaha_data.models.provenance import DataStatus, DataQuality
+from pravaha_data.demo.ids import DEMO_SENSOR_PRIMARY_ID, DEMO_SENSOR_SECONDARY_ID
 from pravaha_data.temporal.history import TemporalHistory
 from pravaha_data.fusion.catchment_fusion import fuse_catchment_state
 
@@ -55,7 +56,7 @@ def test_observed_preferred_over_simulated():
     
     obs_simulated = make_obs(now - timedelta(minutes=1), {
         "rainfall_intensity_mm_per_hr": Measurement(value=99.0, status=DataStatus.SIMULATED)
-    }, source_id="SIM_NODE")
+    }, source_id=DEMO_SENSOR_PRIMARY_ID)
     
     history = TemporalHistory()
     
@@ -70,7 +71,7 @@ def test_simulated_preserved():
     
     obs_sim = make_obs(now - timedelta(minutes=3), {
         "soil_moisture_percentage": Measurement(value=75.0, status=DataStatus.SIMULATED)
-    }, source_id="SIM_SOIL")
+    }, source_id=DEMO_SENSOR_SECONDARY_ID)
     
     history = TemporalHistory()
     res = fuse_catchment_state("CAT_01", [obs_sim], history, state_time=now)
